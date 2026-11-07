@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Manrope:wght@400;500;600;700&display=swap">
 <style>
 body { margin: 0; }
+[hidden] { display: none !important; }
 /* Una sola estética oscura, igual que los flyers: banda de marca arriba, rejilla de productos */
 :root {
   color-scheme: dark;
@@ -115,10 +116,75 @@ footer { padding-block: 36px 40px; color: var(--muted); font-size: 12.5px; }
 }
 @media (max-width: 360px) { .grid { grid-template-columns: 1fr; } }
 @media (prefers-reduced-motion: no-preference) { .card { transition: transform .18s, border-color .18s; } .card:hover { transform: translateY(-2px); border-color: #3e3a50; } }
+
+/* Pantalla de pago */
+dialog.pay { width: min(460px, calc(100% - 32px)); max-height: calc(100% - 32px); border: 1px solid var(--line); border-radius: 20px; padding: 0; background: var(--surface); color: var(--fg); }
+dialog.pay::backdrop { background: rgba(5, 4, 10, .72); backdrop-filter: blur(4px); }
+.pay form { display: flex; flex-direction: column; gap: 14px; padding: 22px; }
+.pay-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.pay-head h2 { margin: 0; font: 800 20px/1.2 var(--display); }
+.pay-head p { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+.x { background: none; border: 0; color: var(--muted); font-size: 24px; line-height: 1; cursor: pointer; padding: 0 4px; }
+.qty { display: flex; align-items: center; gap: 10px; }
+.qty .n { font: 800 20px/1 var(--display); min-width: 2ch; text-align: center; font-variant-numeric: tabular-nums; }
+.methods { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; border: 0; padding: 0; margin: 0; }
+.methods legend { font-size: 12px; color: var(--muted); margin-bottom: 6px; padding: 0; }
+.method { position: relative; display: flex; flex-direction: column; gap: 2px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; cursor: pointer; background: var(--bg); }
+.method input { position: absolute; opacity: 0; pointer-events: none; }
+.method strong { font-size: 15px; }
+.method span { font-size: 12px; color: var(--muted); }
+.method:has(input:checked) { border-color: var(--pink); background: rgba(255, 61, 139, .08); }
+.method:has(input:focus-visible) { outline: 2px solid var(--pink); outline-offset: 2px; }
+.bank { display: flex; flex-direction: column; gap: 6px; padding: 14px; border-radius: 12px; border: 1px dashed rgba(124, 77, 255, .6); background: rgba(124, 77, 255, .08); font-size: 14px; }
+.bank div { display: flex; justify-content: space-between; gap: 10px; }
+.bank dt, .bank .k { color: var(--muted); }
+.bank .v { font-weight: 600; text-align: right; user-select: all; font-variant-numeric: tabular-nums; }
+.copy { align-self: flex-start; background: none; border: 1px solid var(--line); color: var(--fg); border-radius: 999px; padding: 6px 12px; font-size: 12px; cursor: pointer; }
+.total-row { display: flex; justify-content: space-between; align-items: baseline; padding-top: 12px; border-top: 1px solid var(--line); }
+.total-row span { color: var(--muted); font-size: 13px; }
+.total-row strong { font: 900 30px/1 var(--display); font-variant-numeric: tabular-nums; }
+.pay .msg { font-size: 13px; min-height: 1em; margin: 0; }
+.pay .msg.bad { color: var(--bad); }
+.done { display: flex; flex-direction: column; gap: 12px; padding: 26px 22px; text-align: left; }
+.done h2 { margin: 0; font: 800 22px/1.2 var(--display); }
+.done p { margin: 0; color: #d9d5e5; }
+.hp { position: absolute; left: -9999px; }
+.f input[type=text], .f input[type=tel] { width: 100%; }
+@media (max-width: 380px) { .methods { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
 <div id="app"></div>
+<dialog class="pay" id="pago" aria-labelledby="pago-titulo">
+  <form id="pago-form" method="dialog" novalidate>
+    <div class="pay-head">
+      <div><h2 id="pago-titulo">Comprar</h2><p id="pago-producto"></p></div>
+      <button type="button" class="x" id="pago-cerrar" aria-label="Cerrar">×</button>
+    </div>
+    <div class="qty"><span style="color:var(--muted);font-size:13px;flex:1">Cantidad</span>
+      <button type="button" class="sq" id="q-menos" aria-label="Menos">−</button><span class="n" id="q-n">1</span><button type="button" class="sq" id="q-mas" aria-label="Más">+</button></div>
+    <label class="f">Tu nombre<input type="text" id="p-nombre" maxlength="80" autocomplete="name" placeholder="Ej. Andrea Pérez" required></label>
+    <label class="f">Tu WhatsApp<input type="tel" id="p-tel" maxlength="20" inputmode="tel" autocomplete="tel" placeholder="Ej. 0991234567" required></label>
+    <fieldset class="methods">
+      <legend>¿Cómo vas a pagar?</legend>
+      <label class="method"><input type="radio" name="metodo" value="efectivo" checked><strong>Efectivo</strong><span>Pagas al recibirlo en la U</span></label>
+      <label class="method"><input type="radio" name="metodo" value="transferencia"><strong>Transferencia</strong><span>Antes o al recibirlo</span></label>
+    </fieldset>
+    <div class="bank" id="banco" hidden></div>
+    <label class="f">Nota (opcional)<input type="text" id="p-nota" maxlength="300" placeholder="Horario o lugar que te queda mejor"></label>
+    <input type="text" id="p-web" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <div class="total-row"><span>Total a pagar</span><strong id="p-total">$0</strong></div>
+    <button type="submit" class="btn" id="p-enviar">Confirmar pedido</button>
+    <p class="msg" id="p-msg" role="status"></p>
+  </form>
+  <div class="done" id="pago-ok" hidden>
+    <h2>¡Pedido registrado!</h2>
+    <p id="ok-texto"></p>
+    <div class="bank" id="ok-banco" hidden></div>
+    <a class="btn" id="ok-wa" target="_blank" rel="noopener" hidden>Avisar por WhatsApp</a>
+    <button type="button" class="btn ghost" id="ok-cerrar">Seguir viendo</button>
+  </div>
+</dialog>
 <script type="application/json" id="estado">{
   "whatsapp": "",
   "instagram": "",
@@ -178,7 +244,7 @@ footer { padding-block: 36px 40px; color: var(--muted); font-size: 12.5px; }
     const agotado = p.stock <= 0, link = linkPedido(p);
     const cliente = agotado
       ? `<button class="btn ghost" disabled>Agotado</button>`
-      : link ? `<a class="btn" href="${esc(link)}" target="_blank" rel="noopener">Pedir</a>` : "";
+      : `<button class="btn" data-comprar="${i}">Comprar</button>`;
     const edicion = !editando ? "" : `<div class="edit">
         <div class="stepper"><button class="sq" data-acc="menos" data-i="${i}" aria-label="Quitar una unidad">−</button>
           <span class="n">${p.stock}</span>
@@ -254,6 +320,7 @@ footer { padding-block: 36px 40px; color: var(--muted); font-size: 12.5px; }
   app.addEventListener("click", (e) => {
     const t = e.target.closest("button");
     if (!t) return;
+    if (t.dataset.comprar) { abrirPago(estado.productos[Number(t.dataset.comprar)]); return; }
     if (t.id === "btn-modo") { editando = !editando; render(); return; }
     if (t.id === "btn-guardar") { guardar(); return; }
     if (t.id === "btn-nuevo") {
@@ -296,6 +363,82 @@ footer { padding-block: 36px 40px; color: var(--muted); font-size: 12.5px; }
     } catch (e) { console.error(e); }
   }
   render();
+  // ---- Pantalla de pago (efectivo o transferencia) ----
+  const dlg = document.getElementById("pago");
+  const $ = (id) => document.getElementById(id);
+  let compra = null;
+  const banco = () => window.TIENDA?.transferencia || {};
+  function htmlBanco() {
+    const b = banco();
+    const filas = [["Banco", b.banco], ["Tipo de cuenta", b.tipo], ["Número", b.numero], ["Titular", b.titular], ["Cédula", b.cedula]].filter(([, v]) => v);
+    if (!filas.length) return `<div>Te envío los datos de la cuenta por WhatsApp al confirmar.</div>`;
+    return filas.map(([k, v]) => `<div><span class="k">${k}</span><span class="v">${esc(v)}</span></div>`).join("") +
+      (b.numero ? `<button type="button" class="copy" data-copiar="${esc(b.numero)}">Copiar número de cuenta</button>` : "");
+  }
+  function metodo() { return dlg.querySelector('input[name="metodo"]:checked').value; }
+  function pintarPago() {
+    $("q-n").textContent = compra.cant;
+    $("q-menos").disabled = compra.cant <= 1;
+    $("q-mas").disabled = compra.cant >= Math.min(5, compra.p.stock);
+    $("p-total").textContent = money(compra.p.precio * compra.cant);
+    const tr = metodo() === "transferencia";
+    $("banco").hidden = !tr;
+    if (tr) $("banco").innerHTML = htmlBanco();
+  }
+  function abrirPago(p) {
+    if (!p || p.stock <= 0) return;
+    compra = { p, cant: 1 };
+    $("pago-producto").textContent = `${p.nombre} · ${money(p.precio)} c/u`;
+    $("pago-form").hidden = false; $("pago-ok").hidden = true;
+    $("p-msg").textContent = ""; $("p-msg").className = "msg";
+    pintarPago();
+    dlg.showModal();
+  }
+  $("pago-cerrar").addEventListener("click", () => dlg.close());
+  $("ok-cerrar").addEventListener("click", () => dlg.close());
+  dlg.addEventListener("click", (e) => { if (e.target === dlg) dlg.close(); });
+  $("q-menos").addEventListener("click", () => { compra.cant = Math.max(1, compra.cant - 1); pintarPago(); });
+  $("q-mas").addEventListener("click", () => { compra.cant = Math.min(5, compra.p.stock, compra.cant + 1); pintarPago(); });
+  dlg.addEventListener("change", (e) => { if (e.target.name === "metodo") pintarPago(); });
+  dlg.addEventListener("click", async (e) => {
+    const b = e.target.closest("[data-copiar]");
+    if (!b) return;
+    try { await navigator.clipboard.writeText(b.dataset.copiar); b.textContent = "Copiado"; }
+    catch { b.textContent = "Mantén presionado el número para copiarlo"; }
+  });
+
+  $("pago-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const msg = $("p-msg"); msg.className = "msg";
+    if ($("p-web").value) return;
+    const nombre = $("p-nombre").value.trim();
+    const telefono = $("p-tel").value.replace(/[^\d+]/g, "");
+    if (nombre.length < 2) { msg.textContent = "Escribe tu nombre."; msg.classList.add("bad"); $("p-nombre").focus(); return; }
+    if (telefono.length < 7) { msg.textContent = "Revisa tu número de WhatsApp."; msg.classList.add("bad"); $("p-tel").focus(); return; }
+    const m = metodo(), total = compra.p.precio * compra.cant;
+    const pedido = { nombre, telefono, producto_id: compra.p.id, cantidad: compra.cant, metodo_pago: m, total, nota: $("p-nota").value.trim() || null };
+    const btn = $("p-enviar"); btn.disabled = true; btn.textContent = "Enviando…";
+    let ok = false;
+    try {
+      const sb = window.supabase.createClient(window.TIENDA.supabaseUrl, window.TIENDA.supabaseKey, { auth: { persistSession: false } });
+      const { error } = await sb.from("pedidos").insert(pedido);
+      ok = !error; if (error) console.error(error);
+    } catch (err) { console.error(err); }
+    btn.disabled = false; btn.textContent = "Confirmar pedido";
+    if (!ok) { msg.textContent = "No se pudo registrar el pedido. Revisa tu conexión y vuelve a intentar."; msg.classList.add("bad"); return; }
+
+    const texto = `Hola! Soy ${nombre}. Pedí ${compra.cant} × ${compra.p.nombre} (total ${money(total)}). Pago: ${m}.`;
+    const wa = soloDigitos(window.TIENDA?.whatsapp);
+    $("ok-texto").textContent = m === "efectivo"
+      ? `Total ${money(total)} en efectivo. Te escribo por WhatsApp para coordinar la entrega en la U.`
+      : `Total ${money(total)} por transferencia. Cuando transfieras, envía el comprobante por WhatsApp y coordinamos la entrega.`;
+    $("ok-banco").hidden = m !== "transferencia";
+    if (m === "transferencia") $("ok-banco").innerHTML = htmlBanco();
+    $("ok-wa").hidden = !wa;
+    if (wa) $("ok-wa").href = `https://wa.me/${wa}?text=${encodeURIComponent(texto)}`;
+    $("pago-form").reset(); $("pago-form").hidden = true; $("pago-ok").hidden = false;
+  });
+
   cargar();
 })();
 </script>
