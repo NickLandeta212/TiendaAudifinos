@@ -105,7 +105,52 @@ footer { padding-block: 36px 40px; color: var(--muted); font-size: 12.5px; }
 .contact-line { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-bottom: 10px; color: var(--fg); font-size: 14px; }
 .contact-line span { user-select: all; }
 
+/* Carrito y pago */
+.in-cart { display: inline-flex; align-items: center; gap: 6px; }
+.in-cart .sq { width: 32px; height: 32px; font-size: 17px; }
+.in-cart .n { font: 800 16px/1 var(--display); min-width: 1.5ch; text-align: center; font-variant-numeric: tabular-nums; }
+.cartbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; padding: 12px max(16px, env(safe-area-inset-left, 0px)) calc(12px + env(safe-area-inset-bottom, 0px)); background: rgba(12, 11, 18, .92); backdrop-filter: blur(10px); border-top: 1px solid var(--line); }
+.cartbar .in { max-width: 1040px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.cartbar strong { font: 800 18px/1.2 var(--display); font-variant-numeric: tabular-nums; }
+.cartbar small { display: block; color: var(--muted); font-size: 12.5px; }
+body.has-cart footer { padding-bottom: 110px; }
+dialog.checkout { width: min(520px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); padding: 0; border: 1px solid var(--line); border-radius: 20px; background: var(--surface); color: var(--fg); }
+dialog.checkout::backdrop { background: rgba(5, 4, 10, .7); }
+.ck { display: flex; flex-direction: column; gap: 16px; padding: 20px; }
+.ck-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.ck-head h2 { margin: 0; font: 800 22px/1.1 var(--display); }
+.x { background: none; border: 0; color: var(--muted); font-size: 26px; line-height: 1; cursor: pointer; padding: 4px 8px; }
+.ck h3 { margin: 0; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.lines { display: flex; flex-direction: column; gap: 8px; }
+.line { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; background: var(--surface-2); }
+.line .nm { min-width: 0; }
+.line .nm div { font-weight: 600; font-size: 14px; }
+.line .nm small { color: var(--muted); font-size: 12.5px; }
+.total { display: flex; justify-content: space-between; align-items: baseline; font: 800 20px/1 var(--display); font-variant-numeric: tabular-nums; padding-top: 4px; }
+.methods { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.method { position: relative; display: flex; flex-direction: column; gap: 3px; padding: 12px 14px; border-radius: 14px; border: 1.5px solid var(--line); background: var(--bg); cursor: pointer; }
+.method input { position: absolute; opacity: 0; pointer-events: none; }
+.method b { font-size: 15px; }
+.method span { color: var(--muted); font-size: 12.5px; }
+.method:has(input:checked) { border-color: var(--pink); background: rgba(255, 61, 139, .08); }
+.method:has(input:focus-visible) { outline: 2px solid var(--pink); outline-offset: 2px; }
+.bank { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; border-radius: 12px; border: 1px dashed rgba(124, 77, 255, .6); background: rgba(124, 77, 255, .08); font-size: 14px; }
+.bank .row { display: flex; justify-content: space-between; gap: 10px; }
+.bank .row span { color: var(--muted); }
+.bank .row b { user-select: all; text-align: right; overflow-wrap: anywhere; }
+.bank p { margin: 0; color: var(--muted); font-size: 13px; }
+.fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.fields .full { grid-column: 1 / -1; }
+.f select { background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 9px 11px; font: inherit; font-size: 14px; color: var(--fg); width: 100%; }
+.err { color: var(--bad); font-size: 13px; min-height: 1.2em; margin: 0; }
+.done { text-align: center; align-items: center; }
+.done .code { font: 900 34px/1 var(--display); letter-spacing: .12em; color: var(--pink); }
+.done p { margin: 0; color: #d9d5e5; max-width: 40ch; }
+.done .bank { width: 100%; text-align: left; }
+.done .btns { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+
 @media (max-width: 560px) {
+  .fields, .methods { grid-template-columns: 1fr; }
   .contact-edit { grid-template-columns: 1fr; }
   .grid { grid-template-columns: 1fr 1fr; gap: 10px; }
   .card { padding: 10px; }
@@ -166,19 +211,13 @@ footer { padding-block: 36px 40px; color: var(--muted); font-size: 12.5px; }
     return `<span class="pill ok">Disponible</span>`;
   }
 
-  function linkPedido(p) {
-    const wa = soloDigitos(estado.whatsapp);
-    if (wa) return `https://wa.me/${wa}?text=${encodeURIComponent(`Hola! Quiero el ${p.nombre} (${money(p.precio)}). ¿Sigue disponible?`)}`;
-    const ig = String(estado.instagram || "").replace(/^@/, "").trim();
-    if (ig) return `https://ig.me/m/${encodeURIComponent(ig)}`;
-    return "";
-  }
-
   function tarjeta(p, i) {
-    const agotado = p.stock <= 0, link = linkPedido(p);
-    const cliente = agotado
+    const agotado = p.stock <= 0, enCarrito = carrito[p.id] || 0;
+    const cliente = editando ? "" : agotado
       ? `<button class="btn ghost" disabled>Agotado</button>`
-      : link ? `<a class="btn" href="${esc(link)}" target="_blank" rel="noopener">Pedir</a>` : "";
+      : enCarrito
+        ? `<span class="in-cart"><button class="sq" data-cart="-" data-id="${esc(p.id)}" aria-label="Quitar uno">−</button><span class="n">${enCarrito}</span><button class="sq" data-cart="+" data-id="${esc(p.id)}" aria-label="Agregar otro" ${enCarrito >= maxDe(p) ? "disabled" : ""}>+</button></span>`
+        : `<button class="btn" data-cart="+" data-id="${esc(p.id)}">Agregar</button>`;
     const edicion = !editando ? "" : `<div class="edit">
         <div class="stepper"><button class="sq" data-acc="menos" data-i="${i}" aria-label="Quitar una unidad">−</button>
           <span class="n">${p.stock}</span>
@@ -237,6 +276,7 @@ footer { padding-block: 36px 40px; color: var(--muted); font-size: 12.5px; }
         <div class="section-head"><h2>Catálogo</h2><p>Stock al ${esc(estado.actualizado)}</p></div>
         <div class="grid">${lista.map((p) => tarjeta(p, estado.productos.indexOf(p))).join("") || `<p style="color:var(--muted)">Pronto llegan nuevos modelos.</p>`}</div>
       </main>
+      ${barraCarrito()}
       <footer class="wrap">
         ${wa || ig ? `<div class="contact-line">${wa ? `<div>WhatsApp: <span>+${esc(wa)}</span></div>` : ""}${ig ? `<div>Instagram: <span>@${esc(ig)}</span></div>` : ""}</div>` : ""}
         <div>Productos genéricos compatibles con iPhone y Android. No afiliados a Apple.</div>
@@ -254,6 +294,8 @@ footer { padding-block: 36px 40px; color: var(--muted); font-size: 12.5px; }
   app.addEventListener("click", (e) => {
     const t = e.target.closest("button");
     if (!t) return;
+    if (t.dataset.cart) { cambiarCarrito(t.dataset.id, t.dataset.cart === "+" ? 1 : -1); render(); return; }
+    if (t.id === "btn-pagar") { abrirPago(); return; }
     if (t.id === "btn-modo") { editando = !editando; render(); return; }
     if (t.id === "btn-guardar") { guardar(); return; }
     if (t.id === "btn-nuevo") {
@@ -282,16 +324,183 @@ footer { padding-block: 36px 40px; color: var(--muted); font-size: 12.5px; }
   // Al salir de un campo, redibuja para que las tarjetas muestren el valor nuevo.
   app.addEventListener("change", (e) => { if (e.target.dataset.campo || e.target.dataset.cfg) render(); });
 
+  // ---------- Carrito y pago (efectivo o transferencia) ----------
+  let _sb = null;
+  const db = () => _sb || (_sb = window.supabase.createClient(window.TIENDA.supabaseUrl, window.TIENDA.supabaseKey, { auth: { persistSession: false } }));
+  const banco = window.TIENDA?.transferencia || {};
+  const hayBanco = !!(banco.banco && banco.numero && banco.titular);
+  const porId = (id) => estado.productos.find((p) => p.id === id);
+  const maxDe = (p) => Math.min(Number(p.stock) || 0, 5); // la tabla de pedidos acepta hasta 5 por producto
+
+  let carrito = {};
+  try { carrito = JSON.parse(localStorage.getItem("carrito") || "{}") || {}; } catch { carrito = {}; }
+  const guardarCarrito = () => { try { localStorage.setItem("carrito", JSON.stringify(carrito)); } catch {} };
+
+  function cambiarCarrito(id, d) {
+    const p = porId(id);
+    if (!p) return;
+    const n = Math.max(0, Math.min(maxDe(p), (carrito[id] || 0) + d));
+    if (n) carrito[id] = n; else delete carrito[id];
+    guardarCarrito();
+  }
+  // Quita lo que ya no existe o se agotó (por ejemplo, después de leer el stock real).
+  function ajustarCarrito() {
+    for (const id of Object.keys(carrito)) {
+      const p = porId(id);
+      if (!p || !p.visible || maxDe(p) <= 0) delete carrito[id];
+      else carrito[id] = Math.min(carrito[id], maxDe(p));
+    }
+    guardarCarrito();
+  }
+  const lineas = () => Object.entries(carrito).map(([id, n]) => ({ p: porId(id), n })).filter((l) => l.p);
+  const unidadesCarrito = () => lineas().reduce((a, l) => a + l.n, 0);
+  const totalCarrito = () => lineas().reduce((a, l) => a + l.n * Number(l.p.precio), 0);
+
+  function barraCarrito() {
+    const n = editando ? 0 : unidadesCarrito();
+    document.body.classList.toggle("has-cart", n > 0);
+    if (!n) return "";
+    return `<div class="cartbar" role="region" aria-label="Tu pedido"><div class="in">
+      <div><strong>${money(totalCarrito())}</strong><small>${n} ${n === 1 ? "producto" : "productos"}</small></div>
+      <button class="btn" id="btn-pagar">Hacer pedido</button></div></div>`;
+  }
+
+  const dlg = document.createElement("dialog");
+  dlg.className = "checkout";
+  dlg.setAttribute("aria-label", "Hacer pedido");
+  document.body.appendChild(dlg);
+  let paso = "form", enviando = false, error = "", hecho = null;
+  const datos = { nombre: "", telefono: "", entrega: "universidad", lugar: "", nota: "", metodo: "efectivo" };
+
+  function bloqueBanco() {
+    if (!hayBanco) return `<div class="bank"><p>Te enviamos los datos de la cuenta por WhatsApp para que hagas la transferencia.</p></div>`;
+    const fila = (k, v) => v ? `<div class="row"><span>${k}</span><b>${esc(v)}</b></div>` : "";
+    return `<div class="bank">${fila("Banco", banco.banco)}${fila("Tipo", banco.tipo)}${fila("Cuenta", banco.numero)}${fila("Titular", banco.titular)}${fila("Cédula", banco.cedula)}
+      <p>Al transferir, envía la foto del comprobante con tu código de pedido.</p></div>`;
+  }
+
+  function mensajeWhatsApp(h) {
+    const items = h.lineas.map((l) => `• ${l.n} x ${l.nombre} (${money(l.n * l.precio)})`).join("\n");
+    return `Hola! Hice el pedido ${h.codigo}:\n${items}\nTotal: ${money(h.total)}\nPago: ${h.metodo === "efectivo" ? "efectivo al recibir" : "transferencia"}\nNombre: ${h.nombre}`;
+  }
+
+  function renderPago() {
+    const wa = soloDigitos(estado.whatsapp);
+    if (paso === "listo" && hecho) {
+      const linkWa = wa ? `https://wa.me/${wa}?text=${encodeURIComponent(mensajeWhatsApp(hecho))}` : "";
+      dlg.innerHTML = `<div class="ck done">
+        <div class="ck-head" style="width:100%;justify-content:flex-end"><button class="x" data-ck="cerrar" aria-label="Cerrar">×</button></div>
+        <h2 style="margin:0;font:800 24px/1.1 var(--display)">¡Pedido recibido!</h2>
+        <div><small style="color:var(--muted)">Tu código</small><div class="code">${esc(hecho.codigo)}</div></div>
+        <p>Total <strong>${money(hecho.total)}</strong>. ${hecho.metodo === "efectivo"
+          ? "Pagas en efectivo cuando te entreguemos y pruebes los audífonos. Te escribimos para coordinar."
+          : "Haz la transferencia por el total y envía el comprobante con tu código. Te escribimos para coordinar la entrega."}</p>
+        ${hecho.metodo === "transferencia" ? bloqueBanco() : ""}
+        <div class="btns">${linkWa ? `<a class="btn" href="${esc(linkWa)}" target="_blank" rel="noopener">Enviar pedido por WhatsApp</a>` : ""}
+          <button class="btn ghost" data-ck="cerrar">Listo</button></div>
+      </div>`;
+      return;
+    }
+    const ls = lineas();
+    dlg.innerHTML = `<form class="ck" method="dialog" novalidate>
+      <div class="ck-head"><h2>Tu pedido</h2><button type="button" class="x" data-ck="cerrar" aria-label="Cerrar">×</button></div>
+      <div class="lines">${ls.map((l) => `<div class="line"><div class="nm"><div>${esc(l.p.nombre)}</div><small>${money(l.p.precio)} c/u</small></div>
+        <span class="in-cart"><button type="button" class="sq" data-cart="-" data-id="${esc(l.p.id)}" aria-label="Quitar uno">−</button><span class="n">${l.n}</span><button type="button" class="sq" data-cart="+" data-id="${esc(l.p.id)}" aria-label="Agregar otro" ${l.n >= maxDe(l.p) ? "disabled" : ""}>+</button></span></div>`).join("")
+        || `<p style="color:var(--muted);margin:0">Tu pedido está vacío.</p>`}
+        <div class="total"><span>Total</span><span>${money(totalCarrito())}</span></div></div>
+
+      <h3>¿Cómo vas a pagar?</h3>
+      <div class="methods" role="radiogroup">
+        <label class="method"><input type="radio" name="metodo" value="efectivo" ${datos.metodo === "efectivo" ? "checked" : ""}><b>Efectivo</b><span>Pagas al recibir, después de probarlos.</span></label>
+        <label class="method"><input type="radio" name="metodo" value="transferencia" ${datos.metodo === "transferencia" ? "checked" : ""}><b>Transferencia</b><span>Transfieres y envías el comprobante.</span></label>
+      </div>
+      ${datos.metodo === "transferencia" ? bloqueBanco() : ""}
+
+      <h3>Tus datos</h3>
+      <div class="fields">
+        <label class="f">Nombre<input name="nombre" autocomplete="name" maxlength="80" value="${esc(datos.nombre)}" required></label>
+        <label class="f">WhatsApp / celular<input name="telefono" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" placeholder="09…" value="${esc(datos.telefono)}" required></label>
+        <label class="f full">Entrega<select name="entrega"><option value="universidad" ${datos.entrega === "universidad" ? "selected" : ""}>En la universidad</option><option value="otro" ${datos.entrega === "otro" ? "selected" : ""}>Otro lugar</option></select></label>
+        ${datos.entrega === "otro" ? `<label class="f full">¿Dónde?<input name="lugar" maxlength="120" value="${esc(datos.lugar)}"></label>` : ""}
+        <label class="f full">Nota (opcional)<textarea name="nota" rows="2" maxlength="150" placeholder="Horario, color, etc.">${esc(datos.nota)}</textarea></label>
+      </div>
+      <p class="err" role="alert">${esc(error)}</p>
+      <button type="submit" class="btn" ${ls.length && !enviando ? "" : "disabled"}>${enviando ? "Enviando…" : `Confirmar pedido · ${money(totalCarrito())}`}</button>
+    </form>`;
+  }
+
+  function abrirPago() {
+    paso = "form"; error = ""; hecho = null;
+    renderPago();
+    if (!dlg.open) dlg.showModal();
+  }
+
+  dlg.addEventListener("input", (e) => { if (e.target.name in datos) datos[e.target.name] = e.target.value; });
+  dlg.addEventListener("change", (e) => { if (e.target.name === "metodo" || e.target.name === "entrega") { datos[e.target.name] = e.target.value; renderPago(); } });
+  dlg.addEventListener("click", (e) => {
+    if (e.target === dlg) { dlg.close(); return; } // clic fuera de la tarjeta
+    const t = e.target.closest("button");
+    if (!t) return;
+    if (t.dataset.ck === "cerrar") { dlg.close(); return; }
+    if (t.dataset.cart) { cambiarCarrito(t.dataset.id, t.dataset.cart === "+" ? 1 : -1); renderPago(); render(); }
+  });
+  dlg.addEventListener("close", () => { if (paso === "listo") { paso = "form"; hecho = null; } render(); });
+  dlg.addEventListener("submit", (e) => { e.preventDefault(); enviarPedido(); });
+
+  function nuevoCodigo() {
+    const abc = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+    const r = crypto.getRandomValues(new Uint8Array(5));
+    return Array.from(r, (b) => abc[b % abc.length]).join("");
+  }
+
+  async function enviarPedido() {
+    const nombre = datos.nombre.trim(), telefono = datos.telefono.trim();
+    const lugar = datos.entrega === "otro" ? datos.lugar.trim() : "";
+    error = "";
+    if (nombre.length < 2) error = "Escribe tu nombre.";
+    else if (soloDigitos(telefono).length < 7) error = "Escribe un número de WhatsApp válido.";
+    else if (datos.entrega === "otro" && !lugar) error = "Dinos dónde quieres la entrega.";
+    if (error) { renderPago(); return; }
+
+    ajustarCarrito();
+    const ls = lineas();
+    if (!ls.length) { error = "Tu pedido está vacío."; renderPago(); render(); return; }
+
+    const codigo = nuevoCodigo();
+    const nota = [lugar && `Lugar: ${lugar}`, datos.nota.trim()].filter(Boolean).join(" · ").slice(0, 300) || null;
+    const filas = ls.map((l) => ({
+      codigo, nombre, telefono, producto_id: l.p.id, cantidad: l.n, entrega: datos.entrega, nota,
+      metodo_pago: datos.metodo, total: Math.round(l.n * Number(l.p.precio) * 100) / 100,
+    }));
+
+    enviando = true; renderPago();
+    try {
+      const { error: err } = await db().from("pedidos").insert(filas);
+      if (err) throw err;
+      hecho = { codigo, nombre, metodo: datos.metodo, total: totalCarrito(),
+        lineas: ls.map((l) => ({ nombre: l.p.nombre, precio: Number(l.p.precio), n: l.n })) };
+      carrito = {}; guardarCarrito();
+      datos.nota = ""; datos.lugar = "";
+      paso = "listo";
+    } catch (err) {
+      console.error(err);
+      error = "No se pudo enviar el pedido. Revisa tu conexión e inténtalo otra vez.";
+    }
+    enviando = false;
+    renderPago(); render();
+  }
+
   // Precios y stock en vivo desde Supabase (si falla, se queda el respaldo de arriba).
   async function cargar() {
     try {
-      const sb = window.supabase.createClient(window.TIENDA.supabaseUrl, window.TIENDA.supabaseKey, { auth: { persistSession: false } });
+      const sb = db();
       const { data, error } = await sb.from("productos").select("id,nombre,descripcion,precio,stock,activo,orden").order("orden");
       if (error || !data?.length) return;
       const formas = { pro3: "pro", pro2: "pro", gen4: "abierto", cable: "cable" };
       estado.productos = data.map((d) => ({ ...d, precio: Number(d.precio), visible: d.activo !== false,
         forma: formas[d.id] || (/cable/i.test(d.nombre) ? "cable" : /4|abierto/i.test(d.nombre) ? "abierto" : "pro") }));
       estado.actualizado = new Date().toISOString().slice(0, 10);
+      ajustarCarrito();
       render();
     } catch (e) { console.error(e); }
   }

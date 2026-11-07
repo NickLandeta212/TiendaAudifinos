@@ -8,4 +8,13 @@ window.TIENDA = {
   whatsapp: "",
   instagram: "",
 
+  // Datos para pagos por transferencia. Si los dejas vacíos, al cliente se le dice
+  // que le envías los datos por WhatsApp.
+  transferencia: {
+    banco: "",    // ej. "Banco Pichincha"
+    tipo: "",     // ej. "Ahorros"
+    numero: "",   // número de cuenta
+    titular: "",  // nombre del titular
+    cedula: "",   // cédula del titular (opcional)
+  },
 };
