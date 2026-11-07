@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Mis pedidos · Audífonos Uni</title>
+<meta name="theme-color" content="#0c0b12">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Manrope:wght@400;500;600;700&display=swap">
+<style>
+/* Panel del dueño: lista de pedidos agrupados por código, con acciones grandes para usar desde el celular */
+:root {
+  color-scheme: dark;
+  --bg: #0c0b12; --surface: #17151f; --surface-2: #201d2b; --line: #2d2a3a;
+  --fg: #f5f3fa; --muted: #a9a4b8; --violet: #7c4dff; --pink: #ff3d8b;
+  --ok: #34d483; --warn: #ffb547; --bad: #ff6b7a; --info: #6aa8ff;
+  --grad: linear-gradient(90deg, var(--violet), var(--pink));
+  --display: "Montserrat", "Arial Black", system-ui, sans-serif;
+  --body: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: radial-gradient(600px 400px at 0% 0%, rgba(124,77,255,.22), transparent 65%), var(--bg); color: var(--fg); font: 15px/1.5 var(--body); -webkit-font-smoothing: antialiased; }
+.wrap { max-width: 860px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 28px 48px; display: flex; flex-direction: column; gap: 20px; }
+.top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.brand { font: 700 12px/1 var(--body); letter-spacing: .3em; }
+.brand b { color: var(--pink); }
+h1 { margin: 0; font: 900 clamp(28px, 6vw, 40px)/1 var(--display); }
+h2 { margin: 0; font: 800 18px/1.2 var(--display); }
+button, input, select { font: inherit; color: inherit; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: 0; cursor: pointer; border-radius: 999px; padding: 10px 16px; font-weight: 700; font-size: 14px; background: var(--grad); color: #fff; text-decoration: none; }
+.btn.ghost { background: transparent; border: 1px solid var(--line); color: var(--fg); }
+.btn.ok { background: var(--ok); color: #06210f; }
+.btn.small { padding: 7px 12px; font-size: 13px; }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible { outline: 2px solid var(--pink); outline-offset: 2px; }
+.box { padding: 20px; border-radius: 18px; border: 1px solid var(--line); background: var(--surface); display: flex; flex-direction: column; gap: 14px; }
+label.f { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); }
+.f input { background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 11px 12px; font-size: 15px; color: var(--fg); width: 100%; }
+.msg { margin: 0; font-size: 13px; min-height: 1em; color: var(--muted); }
+.msg.bad { color: var(--bad); } .msg.ok { color: var(--ok); }
+.linkish { background: none; border: 0; padding: 0; color: var(--muted); text-decoration: underline; cursor: pointer; font-size: 13px; }
+
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.stat { padding: 14px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); }
+.stat span { display: block; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.stat strong { font: 800 24px/1.2 var(--display); font-variant-numeric: tabular-nums; }
+
+.tools { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+.tab { padding: 7px 13px; border-radius: 999px; border: 1px solid var(--line); background: none; cursor: pointer; font-size: 13px; color: var(--muted); }
+.tab[aria-pressed="true"] { border-color: var(--pink); color: var(--fg); background: rgba(255,61,139,.1); }
+.search { flex: 1; min-width: 160px; background: var(--bg); border: 1px solid var(--line); border-radius: 999px; padding: 9px 14px; font-size: 14px; text-transform: uppercase; }
+
+.orders { display: flex; flex-direction: column; gap: 12px; }
+.order { padding: 16px; border-radius: 16px; background: linear-gradient(180deg, var(--surface-2), var(--surface)); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 10px; }
+.order.st-entregado, .order.st-cancelado { opacity: .62; }
+.o-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap; }
+.code { font: 900 26px/1 var(--display); letter-spacing: .12em; font-variant-numeric: tabular-nums; }
+.when { font-size: 12px; color: var(--muted); }
+.pills { display: flex; gap: 6px; flex-wrap: wrap; }
+.pill { font-size: 11px; font-weight: 700; padding: 4px 9px; border-radius: 999px; border: 1px solid currentColor; }
+.p-nuevo { color: var(--warn); } .p-confirmado { color: var(--info); } .p-entregado { color: var(--ok); } .p-cancelado { color: var(--bad); }
+.p-efectivo { color: #e9e6f2; } .p-transferencia { color: #c9b6ff; }
+.who { display: flex; gap: 6px 14px; flex-wrap: wrap; font-size: 14px; }
+.who a { color: var(--fg); }
+.items { margin: 0; padding: 0; list-style: none; border-top: 1px dashed var(--line); padding-top: 8px; display: flex; flex-direction: column; gap: 4px; font-size: 14px; }
+.items li { display: flex; justify-content: space-between; gap: 10px; font-variant-numeric: tabular-nums; }
+.items .tot { font-weight: 800; border-top: 1px solid var(--line); padding-top: 6px; margin-top: 2px; }
+.note { font-size: 13px; color: var(--muted); }
+.acts { display: flex; gap: 8px; flex-wrap: wrap; }
+.empty { color: var(--muted); padding: 24px; text-align: center; border: 1px dashed var(--line); border-radius: 16px; }
+
+.stock { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
+.s-item { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); min-width: 0; }
+.s-item span { font-size: 13px; min-width: 0; }
+.stepper { display: flex; align-items: center; gap: 6px; }
+.sq { width: 32px; height: 32px; border-radius: 9px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; font-weight: 700; }
+.n { font: 800 18px/1 var(--display); min-width: 2ch; text-align: center; font-variant-numeric: tabular-nums; }
+@media (max-width: 520px) { .stats { grid-template-columns: 1fr 1fr 1fr; } .stat strong { font-size: 19px; } .code { font-size: 22px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><div class="brand">AUDÍFONOS <b>·</b> UNI</div><button class="linkish" id="salir" hidden>Cerrar sesión</button></div>
+  <h1>Mis pedidos</h1>
+
+  <!-- Login -->
+  <form class="box" id="login" novalidate hidden>
+    <h2 id="login-titulo">Entra a tu panel</h2>
+    <label class="f">Correo<input type="email" id="email" autocomplete="username" required></label>
+    <label class="f">Contraseña<input type="password" id="pass" autocomplete="current-password" minlength="8" required></label>
+    <button class="btn" id="login-btn" type="submit">Entrar</button>
+    <p class="msg" id="login-msg" role="status"></p>
+    <button type="button" class="linkish" id="modo">Primera vez: crear mi acceso</button>
+  </form>
+
+  <!-- Panel -->
+  <div id="panel" hidden>
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <div class="stats">
+        <div class="stat"><span>Por atender</span><strong id="s-pend">0</strong></div>
+        <div class="stat"><span>Por cobrar</span><strong id="s-cobrar">$0</strong></div>
+        <div class="stat"><span>Vendido</span><strong id="s-vendido">$0</strong></div>
+      </div>
+      <div class="tools">
+        <div class="tabs" role="group" aria-label="Filtrar pedidos">
+          <button class="tab" data-f="pendientes" aria-pressed="true">Por atender</button>
+          <button class="tab" data-f="entregado" aria-pressed="false">Entregados</button>
+          <button class="tab" data-f="todos" aria-pressed="false">Todos</button>
+        </div>
+        <input class="search" id="buscar" placeholder="Buscar código" maxlength="8" aria-label="Buscar por código">
+        <button class="btn ghost small" id="refrescar">Actualizar</button>
+      </div>
+      <div class="orders" id="lista"></div>
+      <p class="msg" id="panel-msg" role="status"></p>
+      <section class="box">
+        <h2>Stock</h2>
+        <div class="stock" id="stock"></div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<script>
+(() => {
+  const T = window.TIENDA;
+  const sb = window.supabase.createClient(T.supabaseUrl, T.supabaseKey);
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const money = (n) => "$" + (Math.round(Number(n) * 100) / 100);
+  const fecha = (s) => new Date(s).toLocaleString("es-EC", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+  let pedidos = [], productos = [], filtro = "pendientes", crear = false;
+
+  // ---------- Sesión ----------
+  $("modo").addEventListener("click", () => {
+    crear = !crear;
+    $("login-titulo").textContent = crear ? "Crea tu acceso" : "Entra a tu panel";
+    $("login-btn").textContent = crear ? "Crear acceso" : "Entrar";
+    $("modo").textContent = crear ? "Ya tengo acceso: entrar" : "Primera vez: crear mi acceso";
+    $("pass").autocomplete = crear ? "new-password" : "current-password";
+    $("login-msg").textContent = crear ? "Usa el correo del dueño y una contraseña de al menos 8 caracteres." : "";
+  });
+
+  $("login").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = $("email").value.trim(), password = $("pass").value;
+    const m = $("login-msg"); m.className = "msg";
+    if (!email || password.length < 8) { m.textContent = "Escribe tu correo y una contraseña de 8 caracteres o más."; m.classList.add("bad"); return; }
+    $("login-btn").disabled = true;
+    const res = crear
+      ? await sb.auth.signUp({ email, password, options: { emailRedirectTo: location.origin + "/admin.html" } })
+      : await sb.auth.signInWithPassword({ email, password });
+    $("login-btn").disabled = false;
+    if (res.error) {
+      m.classList.add("bad");
+      m.textContent = /confirm/i.test(res.error.message) ? "Primero confirma tu correo con el enlace que te llegó."
+        : /invalid/i.test(res.error.message) ? "Correo o contraseña incorrectos." : res.error.message;
+      return;
+    }
+    if (crear && !res.data.session) {
+      m.classList.add("ok");
+      m.textContent = "Listo. Te llegó un correo de confirmación: ábrelo y luego vuelve aquí a entrar.";
+      return;
+    }
+  });
+
+  $("salir").addEventListener("click", () => sb.auth.signOut());
+
+  sb.auth.onAuthStateChange((_ev, session) => mostrar(session));
+  sb.auth.getSession().then(({ data }) => mostrar(data.session));
+
+  let mostrando = null;
+  function mostrar(session) {
+    const id = session?.user?.id || null;
+    if (id === mostrando) return;
+    mostrando = id;
+    $("login").hidden = !!session; $("panel").hidden = !session; $("salir").hidden = !session;
+    if (session) cargar();
+  }
+
+  // ---------- Datos ----------
+  async function cargar() {
+    $("panel-msg").textContent = "Cargando…"; $("panel-msg").className = "msg";
+    const [p, s] = await Promise.all([
+      sb.from("pedidos").select("*").order("creado_en", { ascending: false }).limit(500),
+      sb.from("productos").select("id,nombre,stock,precio,orden").order("orden"),
+    ]);
+    if (p.error || s.error) { $("panel-msg").textContent = "No se pudieron cargar los pedidos. Revisa tu conexión."; $("panel-msg").classList.add("bad"); return; }
+    pedidos = p.data; productos = s.data;
+    $("panel-msg").textContent = pedidos.length ? "" : "";
+    if (!pedidos.length && !productos.length) { $("panel-msg").textContent = "Esta cuenta no tiene acceso al panel."; $("panel-msg").classList.add("bad"); }
+    render();
+  }
+  $("refrescar").addEventListener("click", cargar);
+
+  // Las filas con el mismo código son un mismo pedido (un producto por fila).
+  function agrupar() {
+    const g = new Map();
+    for (const r of pedidos) {
+      const k = r.codigo || "#" + r.id;
+      if (!g.has(k)) g.set(k, { codigo: r.codigo || "—", filas: [], r });
+      g.get(k).filas.push(r);
+    }
+    return [...g.values()].map((o) => {
+      const estados = o.filas.map((f) => f.estado);
+      const estado = estados.every((x) => x === "entregado") ? "entregado" : estados.every((x) => x === "cancelado") ? "cancelado"
+        : estados.some((x) => x === "confirmado") ? "confirmado" : estados.some((x) => x === "nuevo") ? "nuevo" : estados[0];
+      const total = o.filas.reduce((a, f) => a + Number(f.total ?? f.cantidad * (productos.find((p) => p.id === f.producto_id)?.precio || 0)), 0);
+      return { ...o, estado, total };
+    });
+  }
+
+  function textoCliente(o) {
+    const b = T.transferencia || {};
+    const datos = [b.banco, b.tipo && `Cuenta ${b.tipo}`, b.numero && `N° ${b.numero}`, b.titular, b.cedula && `C.I. ${b.cedula}`].filter(Boolean).join("\n");
+    const base = `Hola ${o.r.nombre.split(" ")[0]}! Soy de Audífonos Uni. Recibí tu pedido ${o.codigo} por ${money(o.total)}.`;
+    if (o.r.metodo_pago === "transferencia")
+      return `${base}\n\nDatos para la transferencia:\n${datos || "(te los paso en un momento)"}\n\nEnvíame el comprobante por aquí. Al entregar te pido el código ${o.codigo}.`;
+    return `${base}\n\nPagas en efectivo al recibirlo. ¿Qué día y hora te queda bien en la U? Al entregar te pido el código ${o.codigo}.`;
+  }
+  function waLink(tel, texto) {
+    let d = String(tel).replace(/\D/g, "");
+    if (d.startsWith("0")) d = "593" + d.slice(1); // número local de Ecuador
+    return `https://wa.me/${d}?text=${encodeURIComponent(texto)}`;
+  }
+
+  function render() {
+    const todos = agrupar();
+    const q = $("buscar").value.trim().toUpperCase();
+    const pend = todos.filter((o) => o.estado === "nuevo" || o.estado === "confirmado");
+    $("s-pend").textContent = pend.length;
+    $("s-cobrar").textContent = money(pend.reduce((a, o) => a + o.total, 0));
+    $("s-vendido").textContent = money(todos.filter((o) => o.estado === "entregado").reduce((a, o) => a + o.total, 0));
+
+    let lista = filtro === "pendientes" ? pend : filtro === "entregado" ? todos.filter((o) => o.estado === "entregado") : todos;
+    if (q) lista = todos.filter((o) => o.codigo.includes(q));
+    $("lista").innerHTML = lista.map((o) => {
+      const items = o.filas.map((f) => {
+        const p = productos.find((x) => x.id === f.producto_id);
+        return `<li><span>${f.cantidad} × ${esc(p?.nombre || f.producto_id)}</span><span>${f.total != null ? money(f.total) : ""}</span></li>`;
+      }).join("");
+      const abierto = o.estado === "nuevo" || o.estado === "confirmado";
+      return `<article class="order st-${o.estado}">
+        <div class="o-head">
+          <div><div class="code">${esc(o.codigo)}</div><div class="when">${fecha(o.r.creado_en)}</div></div>
+          <div class="pills"><span class="pill p-${o.estado}">${{ nuevo: "Nuevo", confirmado: "Confirmado", entregado: "Entregado", cancelado: "Cancelado" }[o.estado] || o.estado}</span>
+            <span class="pill p-${esc(o.r.metodo_pago)}">${o.r.metodo_pago === "transferencia" ? "Transferencia" : "Efectivo"}</span></div>
+        </div>
+        <div class="who"><strong>${esc(o.r.nombre)}</strong><a href="${waLink(o.r.telefono, "")}" target="_blank" rel="noopener">${esc(o.r.telefono)}</a>
+          <span class="note">${o.r.entrega === "otro" ? "Entrega en otro lugar" : "Entrega en la U"}</span></div>
+        <ul class="items">${items}<li class="tot"><span>Total</span><span>${money(o.total)}</span></li></ul>
+        ${o.r.nota ? `<div class="note">Nota: ${esc(o.r.nota)}</div>` : ""}
+        <div class="acts">
+          ${abierto ? `<a class="btn small" href="${waLink(o.r.telefono, textoCliente(o))}" target="_blank" rel="noopener">Escribir al cliente</a>` : ""}
+          ${o.estado === "nuevo" ? `<button class="btn ghost small" data-k="${esc(o.codigo)}" data-e="confirmado">Pago confirmado</button>` : ""}
+          ${abierto ? `<button class="btn ok small" data-k="${esc(o.codigo)}" data-e="entregado">Entregado</button>
+                       <button class="btn ghost small" data-k="${esc(o.codigo)}" data-e="cancelado">Cancelar</button>` : `<button class="btn ghost small" data-k="${esc(o.codigo)}" data-e="nuevo">Reabrir</button>`}
+        </div>
+      </article>`;
+    }).join("") || `<div class="empty">${q ? "No hay pedidos con ese código." : filtro === "pendientes" ? "No tienes pedidos por atender." : "Todavía no hay pedidos aquí."}</div>`;
+
+    $("stock").innerHTML = productos.map((p) => `<div class="s-item"><span>${esc(p.nombre)}</span>
+      <div class="stepper"><button class="sq" data-s="${esc(p.id)}" data-d="-1" aria-label="Quitar uno">−</button><span class="n">${p.stock}</span><button class="sq" data-s="${esc(p.id)}" data-d="1" aria-label="Agregar uno">+</button></div></div>`).join("");
+  }
+
+  document.querySelector(".tabs").addEventListener("click", (e) => {
+    const b = e.target.closest(".tab"); if (!b) return;
+    filtro = b.dataset.f; $("buscar").value = "";
+    document.querySelectorAll(".tab").forEach((t) => t.setAttribute("aria-pressed", String(t === b)));
+    render();
+  });
+  $("buscar").addEventListener("input", render);
+
+  document.addEventListener("click", async (e) => {
+    const b = e.target.closest("button[data-k], button[data-s]");
+    if (!b) return;
+    b.disabled = true;
+    const m = $("panel-msg"); m.className = "msg";
+    let error;
+    if (b.dataset.k) {
+      const g = agrupar().find((o) => o.codigo === b.dataset.k);
+      const ids = g.filas.map((f) => f.id);
+      ({ error } = await sb.from("pedidos").update({ estado: b.dataset.e }).in("id", ids));
+      if (!error) m.textContent = b.dataset.e === "entregado" ? `Pedido ${g.codigo} entregado. El stock se descontó solo.` : `Pedido ${g.codigo} actualizado.`;
+    } else {
+      const p = productos.find((x) => x.id === b.dataset.s);
+      ({ error } = await sb.from("productos").update({ stock: Math.max(0, p.stock + Number(b.dataset.d)) }).eq("id", p.id));
+    }
+    if (error) { m.textContent = "No se pudo guardar el cambio. Intenta de nuevo."; m.classList.add("bad"); b.disabled = false; return; }
+    if (m.textContent) m.classList.add("ok");
+    await cargar();
+    setTimeout(() => { if (m.classList.contains("ok")) m.textContent = ""; }, 4000);
+  });
+})();
+</script>
+</body>
+</html>
