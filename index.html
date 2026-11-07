@@ -91,7 +91,6 @@ label.f { display: flex; flex-direction: column; gap: 4px; font-size: 12px; colo
 .card p { margin: 0; color: var(--muted); font-size: 13.5px; flex: 1; }
 .foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .price { font: 900 28px/1 var(--display); font-variant-numeric: tabular-nums; }
-.combo-note { font-size: 12px; color: var(--muted); }
 
 /* Controles de edición dentro de la tarjeta */
 .edit { display: flex; flex-direction: column; gap: 8px; padding-top: 8px; border-top: 1px dashed var(--line); }
@@ -102,9 +101,6 @@ label.f { display: flex; flex-direction: column; gap: 4px; font-size: 12px; colo
 .two { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .linkish { background: none; border: 0; padding: 0; color: var(--muted); font-size: 12px; text-decoration: underline; cursor: pointer; text-align: left; }
 
-.combo { margin-top: 16px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 16px 20px; border-radius: var(--r); background: var(--grad); }
-.combo strong { font: 800 17px/1.2 var(--display); display: block; }
-.combo span { font-size: 14px; opacity: .92; }
 footer { padding-block: 36px 40px; color: var(--muted); font-size: 12.5px; }
 .contact-line { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-bottom: 10px; color: var(--fg); font-size: 14px; }
 .contact-line span { user-select: all; }
@@ -126,7 +122,6 @@ footer { padding-block: 36px 40px; color: var(--muted); font-size: 12.5px; }
 <script type="application/json" id="estado">{
   "whatsapp": "",
   "instagram": "",
-  "descuentoCombo": 2,
   "actualizado": "2026-11-07",
   "productos": [
     {"id": "pro3", "nombre": "tipo AirPods Pro 3", "descripcion": "Cancelación de ruido, modo ambiente y estuche con carga. El más completo.", "precio": 25, "stock": 3, "forma": "pro", "visible": true},
@@ -210,7 +205,6 @@ footer { padding-block: 36px 40px; color: var(--muted); font-size: 12.5px; }
     const unidades = estado.productos.reduce((a, p) => a + Number(p.stock || 0), 0);
     const valor = estado.productos.reduce((a, p) => a + Number(p.stock || 0) * Number(p.precio || 0), 0);
     const wa = soloDigitos(estado.whatsapp), ig = String(estado.instagram || "").replace(/^@/, "").trim();
-    const cable = estado.productos.find((p) => p.forma === "cable");
     const audifonos = estado.productos.filter((p) => p.forma !== "cable" && p.visible);
     const desde = audifonos.length ? Math.min(...audifonos.map((p) => Number(p.precio))) : null;
 
@@ -242,7 +236,6 @@ footer { padding-block: 36px 40px; color: var(--muted); font-size: 12.5px; }
         </section>` : ""}
         <div class="section-head"><h2>Catálogo</h2><p>Stock al ${esc(estado.actualizado)}</p></div>
         <div class="grid">${lista.map((p) => tarjeta(p, estado.productos.indexOf(p))).join("") || `<p style="color:var(--muted)">Pronto llegan nuevos modelos.</p>`}</div>
-        ${cable && cable.visible ? `<div class="combo"><div><strong>Combo audífonos + cable</strong><span>Con cualquier audífono, el cable sale a ${money(Math.max(0, cable.precio - estado.descuentoCombo))} en vez de ${money(cable.precio)}.</span></div></div>` : ""}
       </main>
       <footer class="wrap">
         ${wa || ig ? `<div class="contact-line">${wa ? `<div>WhatsApp: <span>+${esc(wa)}</span></div>` : ""}${ig ? `<div>Instagram: <span>@${esc(ig)}</span></div>` : ""}</div>` : ""}
