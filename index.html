@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Audífonos · Uni</title>
+<meta name="description" content="Audífonos inalámbricos desde $20 con entrega en persona en la universidad.">
+<meta name="theme-color" content="#0c0b12">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Manrope:wght@400;500;600;700&display=swap">
+<style>
+body { margin: 0; }
+/* Una sola estética oscura, igual que los flyers: banda de marca arriba, rejilla de productos */
+:root {
+  color-scheme: dark;
+  --bg: #0c0b12;
+  --surface: #17151f;
+  --surface-2: #201d2b;
+  --line: #2d2a3a;
+  --fg: #f5f3fa;
+  --muted: #a9a4b8;
+  --violet: #7c4dff;
+  --pink: #ff3d8b;
+  --ok: #34d483;
+  --warn: #ffb547;
+  --bad: #ff6b7a;
+  --grad: linear-gradient(90deg, var(--violet), var(--pink));
+  --display: "Montserrat", "Arial Black", system-ui, sans-serif;
+  --body: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --r: 16px;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  background:
+    radial-gradient(640px 420px at 0% 0%, rgba(124, 77, 255, .28), transparent 65%),
+    radial-gradient(560px 480px at 100% 85%, rgba(255, 61, 139, .14), transparent 65%),
+    var(--bg);
+  color: var(--fg);
+  font: 15px/1.5 var(--body);
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1040px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+header { padding-block: 40px 28px; display: flex; flex-direction: column; gap: 14px; }
+.top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.brand { font: 700 12px/1 var(--body); letter-spacing: .3em; }
+.brand b { color: var(--pink); }
+h1 { margin: 0; font: 900 clamp(38px, 8vw, 72px)/.95 var(--display); text-transform: uppercase; letter-spacing: -.02em; text-wrap: balance; }
+h1 span { background: linear-gradient(90deg, #ffd3e6, var(--pink)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.lead { margin: 0; color: #d9d5e5; max-width: 52ch; font-size: 17px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { padding: 7px 13px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); font-size: 13px; text-decoration: none; }
+.chip strong { color: var(--fg); font-weight: 600; }
+a.chip:hover { border-color: var(--pink); color: var(--fg); }
+
+button, input, textarea { font: inherit; color: inherit; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: 0; cursor: pointer; border-radius: 999px; padding: 10px 18px; font-weight: 700; font-size: 14px; background: var(--grad); color: #fff; text-decoration: none; }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn.ghost { background: transparent; border: 1px solid var(--line); color: var(--fg); }
+.btn.ghost:hover { border-color: var(--violet); }
+.btn:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visible { outline: 2px solid var(--pink); outline-offset: 2px; }
+
+/* Panel del dueño */
+.admin { display: flex; flex-direction: column; gap: 14px; padding: 18px; border-radius: var(--r); border: 1px solid rgba(124, 77, 255, .45); background: rgba(124, 77, 255, .08); margin-bottom: 22px; }
+.admin-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.admin h2 { margin: 0; font: 800 18px/1.2 var(--display); }
+.stats { display: flex; gap: 22px; flex-wrap: wrap; font-variant-numeric: tabular-nums; }
+.stats div { display: flex; flex-direction: column; }
+.stats span { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.stats strong { font: 800 22px/1.2 var(--display); }
+.contact-edit { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+label.f { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); min-width: 0; }
+.f input, .f textarea { background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 9px 11px; font-size: 14px; color: var(--fg); min-width: 0; width: 100%; }
+.f textarea { resize: vertical; }
+.status { font-size: 13px; color: var(--muted); min-height: 1.2em; }
+.status.ok { color: var(--ok); } .status.bad { color: var(--bad); }
+
+/* Catálogo */
+.section-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+.section-head h2 { margin: 0; font: 800 26px/1.1 var(--display); }
+.section-head p { margin: 0; color: var(--muted); font-size: 13px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+.card { display: flex; flex-direction: column; gap: 8px; padding: 14px; border-radius: var(--r); background: linear-gradient(180deg, var(--surface-2), var(--surface)); border: 1px solid var(--line); min-width: 0; }
+.card.out { opacity: .6; }
+.card.hidden-p { border-style: dashed; opacity: .55; }
+.art { position: relative; aspect-ratio: 10 / 7; max-width: 100%; display: grid; place-items: center; border-radius: 12px; background: radial-gradient(circle at 50% 40%, #2a2738, #14121b 72%); }
+.art svg { width: 78%; height: auto; }
+.pill { position: absolute; top: 10px; left: 10px; font-size: 11px; font-weight: 700; padding: 4px 9px; border-radius: 999px; background: rgba(12, 11, 18, .75); border: 1px solid currentColor; }
+.pill.ok { color: var(--ok); } .pill.low { color: var(--warn); } .pill.no { color: var(--bad); }
+.card h3 { margin: 4px 0 0; font-size: 16px; font-weight: 700; }
+.card p { margin: 0; color: var(--muted); font-size: 13.5px; flex: 1; }
+.foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.price { font: 900 28px/1 var(--display); font-variant-numeric: tabular-nums; }
+.combo-note { font-size: 12px; color: var(--muted); }
+
+/* Controles de edición dentro de la tarjeta */
+.edit { display: flex; flex-direction: column; gap: 8px; padding-top: 8px; border-top: 1px dashed var(--line); }
+.stepper { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.stepper .n { font: 800 22px/1 var(--display); font-variant-numeric: tabular-nums; min-width: 2ch; text-align: center; }
+.sq { width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); cursor: pointer; font-size: 20px; font-weight: 700; }
+.sq:hover { border-color: var(--violet); }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.linkish { background: none; border: 0; padding: 0; color: var(--muted); font-size: 12px; text-decoration: underline; cursor: pointer; text-align: left; }
+
+.combo { margin-top: 16px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 16px 20px; border-radius: var(--r); background: var(--grad); }
+.combo strong { font: 800 17px/1.2 var(--display); display: block; }
+.combo span { font-size: 14px; opacity: .92; }
+footer { padding-block: 36px 40px; color: var(--muted); font-size: 12.5px; }
+.contact-line { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-bottom: 10px; color: var(--fg); font-size: 14px; }
+.contact-line span { user-select: all; }
+
+@media (max-width: 560px) {
+  .contact-edit { grid-template-columns: 1fr; }
+  .grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .card { padding: 10px; }
+  .price { font-size: 22px; }
+  .card p { font-size: 12.5px; }
+  .btn { padding: 9px 12px; font-size: 13px; }
+}
+@media (max-width: 360px) { .grid { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: no-preference) { .card { transition: transform .18s, border-color .18s; } .card:hover { transform: translateY(-2px); border-color: #3e3a50; } }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script type="application/json" id="estado">{
+  "whatsapp": "",
+  "instagram": "",
+  "descuentoCombo": 2,
+  "actualizado": "2026-11-07",
+  "productos": [
+    {"id": "pro3", "nombre": "tipo AirPods Pro 3", "descripcion": "Cancelación de ruido, modo ambiente y estuche con carga. El más completo.", "precio": 25, "stock": 3, "forma": "pro", "visible": true},
+    {"id": "pro2", "nombre": "tipo AirPods Pro 2", "descripcion": "Cancelación de ruido y control táctil. Buen equilibrio entre precio y calidad.", "precio": 23, "stock": 3, "forma": "pro", "visible": true},
+    {"id": "gen4", "nombre": "estilo AirPods 4", "descripcion": "Diseño abierto, ligeros y cómodos para todo el día.", "precio": 20, "stock": 2, "forma": "abierto", "visible": true},
+    {"id": "cable", "nombre": "Cable tipo C", "descripcion": "Carga rápida para tus audífonos y tu celular.", "precio": 6, "stock": 6, "forma": "cable", "visible": true}
+  ]
+}</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<script>
+
+(() => {
+  const estadoEl = document.getElementById("estado");
+  let estado = JSON.parse(estadoEl.textContent);
+  Object.assign(estado, { whatsapp: window.TIENDA?.whatsapp || "", instagram: window.TIENDA?.instagram || "" });
+  let editando = false, puedeEditar = false, artifactNs = null, cambios = false, guardando = false;
+  const app = document.getElementById("app");
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const money = (n) => "$" + (Math.round(Number(n) * 100) / 100);
+  const soloDigitos = (s) => String(s || "").replace(/\D/g, "");
+
+  function svg(forma) {
+    if (forma === "cable") return `<svg viewBox="0 0 200 140" aria-hidden="true"><defs><linearGradient id="g-c" x1="0" x2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#c9ccd6"/></linearGradient></defs>
+      <ellipse cx="100" cy="128" rx="62" ry="6" fill="#000" opacity=".45"/>
+      <path d="M40 95 C 70 20, 130 130, 160 45" stroke="url(#g-c)" stroke-width="9" fill="none" stroke-linecap="round"/>
+      <rect x="22" y="92" width="34" height="20" rx="6" fill="url(#g-c)"/><rect x="28" y="110" width="22" height="10" rx="3" fill="#9aa0ad"/>
+      <rect x="146" y="22" width="30" height="20" rx="6" fill="url(#g-c)" transform="rotate(20 161 32)"/></svg>`;
+    const pro = forma !== "abierto", stem = pro ? 26 : 38, w = pro ? 84 : 76, h = pro ? 58 : 66;
+    const bud = (x, f) => `<g transform="translate(${x} 38) scale(${f ? -1 : 1} 1)">${pro ? '<ellipse cx="-12" cy="-2" rx="7" ry="8" fill="#9aa0ad"/>' : ""}
+      <rect x="-4" y="4" width="10" height="${stem}" rx="5" fill="url(#g-b)"/><ellipse cx="0" cy="0" rx="14" ry="12" fill="url(#g-b)"/><ellipse cx="-5" cy="-2" rx="4" ry="5" fill="#2b2f3a"/></g>`;
+    return `<svg viewBox="0 0 200 140" aria-hidden="true"><defs><linearGradient id="g-b" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#c9ccd6"/></linearGradient></defs>
+      <ellipse cx="100" cy="128" rx="62" ry="6" fill="#000" opacity=".45"/>${bud(64)}${bud(136, true)}
+      <rect x="${100 - w / 2}" y="${124 - h}" width="${w}" height="${h}" rx="${pro ? 20 : 26}" fill="url(#g-b)"/>
+      <line x1="${100 - w / 2 + 2}" y1="${124 - h + 20}" x2="${100 + w / 2 - 2}" y2="${124 - h + 20}" stroke="#b5b9c4" stroke-width="1.5"/>
+      <circle cx="100" cy="${124 - h + 34}" r="2" fill="#2fd27a"/></svg>`;
+  }
+
+  function stockPill(n) {
+    if (n <= 0) return `<span class="pill no">Agotado</span>`;
+    if (n <= 3) return `<span class="pill low">Quedan ${n}</span>`;
+    return `<span class="pill ok">Disponible</span>`;
+  }
+
+  function linkPedido(p) {
+    const wa = soloDigitos(estado.whatsapp);
+    if (wa) return `https://wa.me/${wa}?text=${encodeURIComponent(`Hola! Quiero el ${p.nombre} (${money(p.precio)}). ¿Sigue disponible?`)}`;
+    const ig = String(estado.instagram || "").replace(/^@/, "").trim();
+    if (ig) return `https://ig.me/m/${encodeURIComponent(ig)}`;
+    return "";
+  }
+
+  function tarjeta(p, i) {
+    const agotado = p.stock <= 0, link = linkPedido(p);
+    const cliente = agotado
+      ? `<button class="btn ghost" disabled>Agotado</button>`
+      : link ? `<a class="btn" href="${esc(link)}" target="_blank" rel="noopener">Pedir</a>` : "";
+    const edicion = !editando ? "" : `<div class="edit">
+        <div class="stepper"><button class="sq" data-acc="menos" data-i="${i}" aria-label="Quitar una unidad">−</button>
+          <span class="n">${p.stock}</span>
+          <button class="sq" data-acc="mas" data-i="${i}" aria-label="Agregar una unidad">+</button></div>
+        <div class="two">
+          <label class="f">Precio ($)<input id="precio-${esc(p.id)}" type="number" min="0" step="0.5" inputmode="decimal" value="${p.precio}" data-campo="precio" data-i="${i}"></label>
+          <label class="f">Stock<input id="stock-${esc(p.id)}" type="number" min="0" step="1" inputmode="numeric" value="${p.stock}" data-campo="stock" data-i="${i}"></label>
+        </div>
+        <label class="f">Nombre<input id="nombre-${esc(p.id)}" maxlength="60" value="${esc(p.nombre)}" data-campo="nombre" data-i="${i}"></label>
+        <label class="f">Descripción<textarea id="desc-${esc(p.id)}" rows="2" maxlength="160" data-campo="descripcion" data-i="${i}">${esc(p.descripcion)}</textarea></label>
+        <button class="linkish" data-acc="visible" data-i="${i}">${p.visible ? "Ocultar de la tienda" : "Mostrar en la tienda"}</button>
+      </div>`;
+    return `<article class="card${agotado ? " out" : ""}${p.visible ? "" : " hidden-p"}">
+      <div class="art">${svg(p.forma)}${stockPill(p.stock)}</div>
+      <h3>${esc(p.nombre)}${p.visible ? "" : " <small style='color:var(--muted)'>(oculto)</small>"}</h3>
+      <p>${esc(p.descripcion)}</p>
+      <div class="foot"><span class="price">${money(p.precio)}</span>${cliente}</div>
+      ${edicion}
+    </article>`;
+  }
+
+  function render() {
+    const lista = estado.productos.filter((p) => editando || p.visible);
+    const unidades = estado.productos.reduce((a, p) => a + Number(p.stock || 0), 0);
+    const valor = estado.productos.reduce((a, p) => a + Number(p.stock || 0) * Number(p.precio || 0), 0);
+    const wa = soloDigitos(estado.whatsapp), ig = String(estado.instagram || "").replace(/^@/, "").trim();
+    const cable = estado.productos.find((p) => p.forma === "cable");
+    const audifonos = estado.productos.filter((p) => p.forma !== "cable" && p.visible);
+    const desde = audifonos.length ? Math.min(...audifonos.map((p) => Number(p.precio))) : null;
+
+    app.innerHTML = `
+      <header class="wrap">
+        <div class="top"><div class="brand">AUDÍFONOS <b>·</b> UNI</div>
+          ${puedeEditar ? `<button class="btn ghost" id="btn-modo">${editando ? "Ver como cliente" : "Editar stock y precios"}</button>` : ""}</div>
+        <h1>Tu música,<br><span>sin cables.</span></h1>
+        <p class="lead">Audífonos inalámbricos${desde != null ? ` desde <strong>${money(desde)}</strong>` : ""}. Entrega en persona en la universidad. Pocas unidades.</p>
+        <div class="chips">
+          <span class="chip"><strong>Pruébalos</strong> antes de pagar</span>
+          <span class="chip"><strong>Efectivo</strong> o transferencia</span>
+          ${ig ? `<a class="chip" href="https://instagram.com/${esc(encodeURIComponent(ig))}" target="_blank" rel="noopener"><strong>@${esc(ig)}</strong></a>` : ""}
+        </div>
+      </header>
+      <main class="wrap">
+        ${editando ? `<section class="admin" aria-label="Panel de edición">
+          <div class="admin-row"><h2>Tu inventario</h2>
+            <div class="stats"><div><span>Unidades</span><strong>${unidades}</strong></div><div><span>Valor a precio de venta</span><strong>${money(valor)}</strong></div></div></div>
+          <div class="contact-edit">
+            <label class="f">WhatsApp (con código de país, ej. 593991234567)<input id="cfg-wa" inputmode="tel" maxlength="20" value="${esc(estado.whatsapp)}" data-cfg="whatsapp"></label>
+            <label class="f">Instagram (sin @)<input id="cfg-ig" maxlength="40" value="${esc(estado.instagram)}" data-cfg="instagram"></label>
+          </div>
+          <div class="admin-row">
+            <div class="status" id="status">${cambios ? "Tienes cambios sin guardar." : `Última actualización: ${esc(estado.actualizado)}`}</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn ghost" id="btn-nuevo">Añadir producto</button>
+            <button class="btn" id="btn-guardar" ${cambios && !guardando ? "" : "disabled"}>${guardando ? "Guardando…" : "Guardar cambios"}</button></div>
+          </div>
+        </section>` : ""}
+        <div class="section-head"><h2>Catálogo</h2><p>Stock al ${esc(estado.actualizado)}</p></div>
+        <div class="grid">${lista.map((p) => tarjeta(p, estado.productos.indexOf(p))).join("") || `<p style="color:var(--muted)">Pronto llegan nuevos modelos.</p>`}</div>
+        ${cable && cable.visible ? `<div class="combo"><div><strong>Combo audífonos + cable</strong><span>Con cualquier audífono, el cable sale a ${money(Math.max(0, cable.precio - estado.descuentoCombo))} en vez de ${money(cable.precio)}.</span></div></div>` : ""}
+      </main>
+      <footer class="wrap">
+        ${wa || ig ? `<div class="contact-line">${wa ? `<div>WhatsApp: <span>+${esc(wa)}</span></div>` : ""}${ig ? `<div>Instagram: <span>@${esc(ig)}</span></div>` : ""}</div>` : ""}
+        <div>Productos genéricos compatibles con iPhone y Android. No afiliados a Apple.</div>
+      </footer>`;
+  }
+
+  function marcar() {
+    cambios = true;
+    const s = document.getElementById("status");
+    if (s) { s.className = "status"; s.textContent = "Tienes cambios sin guardar."; }
+    const b = document.getElementById("btn-guardar");
+    if (b) b.disabled = false;
+  }
+
+  app.addEventListener("click", (e) => {
+    const t = e.target.closest("button");
+    if (!t) return;
+    if (t.id === "btn-modo") { editando = !editando; render(); return; }
+    if (t.id === "btn-guardar") { guardar(); return; }
+    if (t.id === "btn-nuevo") {
+      estado.productos.push({ id: "p" + Date.now().toString(36), nombre: "Nuevo producto", descripcion: "Describe el producto.", precio: 10, stock: 1, forma: "pro", visible: true });
+      cambios = true; render(); return;
+    }
+    const i = Number(t.dataset.i), p = estado.productos[i];
+    if (!p) return;
+    if (t.dataset.acc === "mas") p.stock++;
+    else if (t.dataset.acc === "menos") p.stock = Math.max(0, p.stock - 1);
+    else if (t.dataset.acc === "visible") p.visible = !p.visible;
+    else return;
+    cambios = true; render();
+  });
+
+  app.addEventListener("input", (e) => {
+    const el = e.target;
+    if (el.dataset.cfg) { estado[el.dataset.cfg] = el.value.trim(); marcar(); return; }
+    const p = estado.productos[Number(el.dataset.i)];
+    if (!p || !el.dataset.campo) return;
+    const c = el.dataset.campo;
+    p[c] = (c === "precio" || c === "stock") ? Math.max(0, Number(el.value) || 0) : el.value;
+    if (c === "stock") p.stock = Math.floor(p.stock);
+    marcar();
+  });
+  // Al salir de un campo, redibuja para que las tarjetas muestren el valor nuevo.
+  app.addEventListener("change", (e) => { if (e.target.dataset.campo || e.target.dataset.cfg) render(); });
+
+  // Precios y stock en vivo desde Supabase (si falla, se queda el respaldo de arriba).
+  async function cargar() {
+    try {
+      const sb = window.supabase.createClient(window.TIENDA.supabaseUrl, window.TIENDA.supabaseKey, { auth: { persistSession: false } });
+      const { data, error } = await sb.from("productos").select("id,nombre,descripcion,precio,stock,activo,orden").order("orden");
+      if (error || !data?.length) return;
+      const formas = { pro3: "pro", pro2: "pro", gen4: "abierto", cable: "cable" };
+      estado.productos = data.map((d) => ({ ...d, precio: Number(d.precio), visible: d.activo !== false,
+        forma: formas[d.id] || (/cable/i.test(d.nombre) ? "cable" : /4|abierto/i.test(d.nombre) ? "abierto" : "pro") }));
+      estado.actualizado = new Date().toISOString().slice(0, 10);
+      render();
+    } catch (e) { console.error(e); }
+  }
+  render();
+  cargar();
+})();
+</script>
+</body>
+</html>
